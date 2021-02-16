@@ -41,7 +41,7 @@
 #define HALF_SCREEN_WIDTH (SCREEN_WIDTH / 2)
 #define HALF_SCREEN_HEIGHT (SCREEN_HEIGHT / 2)
 
-#define RATIO_X (gfx_current_dimensions.width / (2.0f * HALF_SCREEN_WIDTH))
+#define RATIO_X ((gfx_current_dimensions.width / (2.0f * HALF_SCREEN_WIDTH)) / 2.0f)
 #define RATIO_Y (gfx_current_dimensions.height / (2.0f * HALF_SCREEN_HEIGHT))
 
 #define MAX_BUFFERED 256
@@ -751,7 +751,7 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         float w = v->ob[0] * rsp.MP_matrix[0][3] + v->ob[1] * rsp.MP_matrix[1][3] + v->ob[2] * rsp.MP_matrix[2][3] + rsp.MP_matrix[3][3];
         
         x = gfx_adjust_x_for_aspect_ratio(x);
-        
+
         short U = v->tc[0] * rsp.texture_scaling_factor.s >> 16;
         short V = v->tc[1] * rsp.texture_scaling_factor.t >> 16;
         
@@ -995,8 +995,9 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         if (z_is_from_0_to_1) {
             z = (z + w) / 2.0f;
         }
+        // Invert x/y for PocketGo S30
+        buf_vbo[buf_vbo_len++] = -v_arr[i]->y;
         buf_vbo[buf_vbo_len++] = v_arr[i]->x;
-        buf_vbo[buf_vbo_len++] = v_arr[i]->y;
         buf_vbo[buf_vbo_len++] = z;
         buf_vbo[buf_vbo_len++] = w;
         
@@ -1356,7 +1357,13 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
     
     ulxf = gfx_adjust_x_for_aspect_ratio(ulxf);
     lrxf = gfx_adjust_x_for_aspect_ratio(lrxf);
-    
+   
+    // Update Y coordinate for the PocketGo S30 screen resolution 
+    ulyf /= 2.0f;
+    ulyf += 0.5f;
+    lryf /= 2.0f;
+    lryf += 0.5f;
+
     struct LoadedVertex* ul = &rsp.loaded_vertices[MAX_VERTICES + 0];
     struct LoadedVertex* ll = &rsp.loaded_vertices[MAX_VERTICES + 1];
     struct LoadedVertex* lr = &rsp.loaded_vertices[MAX_VERTICES + 2];

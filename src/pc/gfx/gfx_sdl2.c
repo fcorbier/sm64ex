@@ -135,7 +135,7 @@ static void gfx_sdl_reset_dimension_and_pos(void) {
     int xpos = (configWindow.x == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.x;
     int ypos = (configWindow.y == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.y;
 
-    SDL_SetWindowSize(wnd, configWindow.w, configWindow.h);
+    SDL_SetWindowSize(wnd, configWindow.h, configWindow.w);
     SDL_SetWindowPosition(wnd, xpos, ypos);
     SDL_GL_SetSwapInterval(configWindow.vsync); // in case vsync changed
 }
@@ -160,7 +160,7 @@ static void gfx_sdl_init(const char *window_title) {
 
     wnd = SDL_CreateWindow(
         window_title,
-        xpos, ypos, configWindow.w, configWindow.h,
+        xpos, ypos, configWindow.h, configWindow.w,
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
     ctx = SDL_GL_CreateContext(wnd);
@@ -192,7 +192,7 @@ static void gfx_sdl_main_loop(void (*run_one_game_iter)(void)) {
 }
 
 static void gfx_sdl_get_dimensions(uint32_t *width, uint32_t *height) {
-    SDL_GetWindowSize(wnd, width, height);
+    SDL_GetWindowSize(wnd, height, width);
 }
 
 static int translate_scancode(int scancode) {
