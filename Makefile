@@ -27,6 +27,9 @@ TARGET_RPI ?= 0
 # Build for Emscripten/WebGL
 TARGET_WEB ?= 0
 
+# Build for PocketGo S30
+TARGET_S30 ?= 1
+
 # Makeflag to enable OSX fixes
 OSX_BUILD ?= 0
 
@@ -106,6 +109,10 @@ ifeq ($(WINDOWS_BUILD),1)
     TARGET_BITS = 64
     NO_BZERO_BCOPY := 1
   endif
+endif
+
+ifeq ($(TARGET_S30),1)
+  CROSS := arm-openwrt-linux-
 endif
 
 ifneq ($(TARGET_BITS),0)
@@ -200,6 +207,11 @@ endif
 VERSION_CFLAGS := $(VERSION_CFLAGS) -DNON_MATCHING -DAVOID_UB
 
 ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
+      VERSION_CFLAGS += -DUSE_GLES
+endif
+
+# PocketGo S30
+ifeq ($(TARGET_S30),1)
       VERSION_CFLAGS += -DUSE_GLES
 endif
 
@@ -565,6 +577,8 @@ else ifeq ($(WINDOW_API),SDL2)
     BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew`
+  else ifeq ($(TARGET_S30),1)
+    BACKEND_LDFLAGS += -lGLESv2 -L$(ZK_ROOT)/prebuilt/a33/lib -lSDL2 -lpthread  -ldl -lrt
   else
     BACKEND_LDFLAGS += -lGL
   endif
@@ -581,7 +595,11 @@ endif
 
 # SDL can be used by different systems, so we consolidate all of that shit into this
 ifeq ($(SDL_USED),2)
-  BACKEND_CFLAGS += -DHAVE_SDL2=1 `$(SDLCONFIG) --cflags`
+  ifeq ($(TARGET_S30),1)
+    BACKEND_CFLAGS += -DHAVE_SDL2=1 -I$(ZK_ROOT)/prebuilt/a33/include -I$(ZK_ROOT)/prebuilt/a33/include/SDL2 -D_REENTRANT
+  else
+    BACKEND_CFLAGS += -DHAVE_SDL2=1 `$(SDLCONFIG) --cflags`
+  endif
   ifeq ($(WINDOWS_BUILD),1)
     BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lwinmm -lversion
   else
@@ -601,6 +619,9 @@ else ifeq ($(TARGET_WEB),1)
 else
   CC_CHECK := $(CC) -fsyntax-only -fsigned-char $(BACKEND_CFLAGS) $(INCLUDE_CFLAGS) -Wall -Wextra -Wno-format-security $(VERSION_CFLAGS) $(GRUCODE_CFLAGS)
   CFLAGS := $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(BACKEND_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv
+  ifeq ($(TARGET_S30),1)
+    CFLAGS += -Os -fPIC -pipe -march=armv7-a -mtune=cortex-a7 -mfpu=neon-vfpv4 -fno-caller-saves -Wno-unused-result -mfloat-abi=hard  -Wformat -Werror=format-security -fstack-protector -D_FORTIFY_SOURCE=1 -D__ARM_NEON__ -Wl,-z,now -Wl,-z,relro -Wl,-z,defs
+  endif
 
 endif
 
@@ -683,7 +704,8 @@ else ifeq ($(WINDOWS_BUILD),1)
     LDFLAGS += -mconsole
   endif
 
-else ifeq ($(TARGET_RPI),1)
+#else ifeq ($(TARGET_RPI),1)
+else ifeq (1,1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 
 else ifeq ($(OSX_BUILD),1)
