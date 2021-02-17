@@ -40,6 +40,7 @@ static bool init_ok;
 static bool haptics_enabled;
 static SDL_GameController *sdl_cntrl;
 static SDL_Haptic *sdl_haptic;
+static SDL_Joystick *sdl_joystick;
 
 static u32 num_joy_binds = 0;
 static u32 num_mouse_binds = 0;
@@ -90,10 +91,12 @@ static void controller_sdl_bind(void) {
 }
 
 static void controller_sdl_init(void) {
-    if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
+    if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
         fprintf(stderr, "SDL init error: %s\n", SDL_GetError());
         return;
     }
+
+    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
     haptics_enabled = (SDL_InitSubSystem(SDL_INIT_HAPTIC) == 0);
 
@@ -163,84 +166,17 @@ static void controller_sdl_read(OSContPad *pad) {
     mouse_buttons = mouse;
 #endif
 
-    SDL_GameControllerUpdate();
-
-    if (sdl_cntrl != NULL && !SDL_GameControllerGetAttached(sdl_cntrl)) {
-        SDL_HapticClose(sdl_haptic);
-        SDL_GameControllerClose(sdl_cntrl);
-        sdl_cntrl = NULL;
-        sdl_haptic = NULL;
+    if (sdl_joystick == NULL) {
+        sdl_joystick = SDL_JoystickOpen(0);
+    }
+    if (sdl_joystick == NULL) {
+        return;
     }
 
-    if (sdl_cntrl == NULL) {
-        for (int i = 0; i < SDL_NumJoysticks(); i++) {
-            if (SDL_IsGameController(i)) {
-                sdl_cntrl = SDL_GameControllerOpen(i);
-                if (sdl_cntrl != NULL) {
-                    sdl_haptic = controller_sdl_init_haptics(i);
-                    break;
-                }
-            }
-        }
-        if (sdl_cntrl == NULL) {
-            return;
-        }
-    }
+    SDL_JoystickUpdate();
 
-    for (u32 i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i) {
-        const bool new = SDL_GameControllerGetButton(sdl_cntrl, i);
-        const bool pressed = !joy_buttons[i] && new;
-        joy_buttons[i] = new;
-        if (pressed) last_joybutton = i;
-    }
-
-    u32 buttons_down = 0;
-    for (u32 i = 0; i < num_joy_binds; ++i)
-        if (joy_buttons[joy_binds[i][0]])
-            buttons_down |= joy_binds[i][1];
-
-    pad->button |= buttons_down;
-
-    const u32 xstick = buttons_down & STICK_XMASK;
-    const u32 ystick = buttons_down & STICK_YMASK;
-    if (xstick == STICK_LEFT)
-        pad->stick_x = -128;
-    else if (xstick == STICK_RIGHT)
-        pad->stick_x = 127;
-    if (ystick == STICK_DOWN)
-        pad->stick_y = -128;
-    else if (ystick == STICK_UP)
-        pad->stick_y = 127;
-
-    int16_t leftx = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_LEFTX);
-    int16_t lefty = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_LEFTY);
-    rightx = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_RIGHTX);
-    righty = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_RIGHTY);
-
-    int16_t ltrig = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-    int16_t rtrig = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-
-#ifdef TARGET_WEB
-    // Firefox has a bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1606562
-    // It sets down y to 32768.0f / 32767.0f, which is greater than the allowed 1.0f,
-    // which SDL then converts to a int16_t by multiplying by 32767.0f, which overflows into -32768.
-    // Maximum up will hence never become -32768 with the current version of SDL2,
-    // so this workaround should be safe in compliant browsers.
-    if (lefty == -32768) {
-        lefty = 32767;
-    }
-    if (righty == -32768) {
-        righty = 32767;
-    }
-#endif
-
-    if (rightx < -0x4000) pad->button |= L_CBUTTONS;
-    if (rightx > 0x4000) pad->button |= R_CBUTTONS;
-    if (righty < -0x4000) pad->button |= U_CBUTTONS;
-    if (righty > 0x4000) pad->button |= D_CBUTTONS;
-
-    if (ltrig > 30 * 256) pad->button |= Z_TRIG;
-    if (rtrig > 30 * 256) pad->button |= R_TRIG;
+    int16_t leftx = SDL_JoystickGetAxis(sdl_joystick, 1);
+    int16_t lefty = SDL_JoystickGetAxis(sdl_joystick, 0);
 
     uint32_t magnitude_sq = (uint32_t)(leftx * leftx) + (uint32_t)(lefty * lefty);
     uint32_t stickDeadzoneActual = configStickDeadzone * DEADZONE_STEP;
