@@ -85,20 +85,7 @@ void sys_fatal(const char *fmt, ...) {
 #include <SDL2/SDL.h>
 
 const char *sys_user_path(void) {
-    static char path[SYS_MAX_PATH] = { 0 };
-    // get it from SDL
-    char *sdlpath = SDL_GetPrefPath("", "sm64pc");
-    if (sdlpath) {
-        const unsigned int len = strlen(sdlpath);
-        strncpy(path, sdlpath, sizeof(path));
-        path[sizeof(path)-1] = 0;
-        SDL_free(sdlpath);
-        if (path[len-1] == '/' || path[len-1] == '\\')
-            path[len-1] = 0; // strip the trailing separator
-        if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
-            path[0] = 0;
-    }
-    return path;
+    return FS_BASEDIR;
 }
 
 const char *sys_exe_path(void) {

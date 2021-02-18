@@ -621,6 +621,7 @@ else
   CFLAGS := $(OPT_FLAGS) $(INCLUDE_CFLAGS) $(BACKEND_CFLAGS) $(VERSION_CFLAGS) $(GRUCODE_CFLAGS) -fno-strict-aliasing -fwrapv
   ifeq ($(TARGET_S30),1)
     CFLAGS += -Os -fPIC -pipe -march=armv7-a -mtune=cortex-a7 -mfpu=neon-vfpv4 -fno-caller-saves -Wno-unused-result -mfloat-abi=hard  -Wformat -Werror=format-security -fstack-protector -D_FORTIFY_SOURCE=1 -D__ARM_NEON__ -Wl,-z,now -Wl,-z,relro -Wl,-z,defs
+    CFLAGS += -DFS_BASEDIR="\"/mnt/extsd/emus/supermario64\""
   endif
 
 endif
@@ -704,8 +705,10 @@ else ifeq ($(WINDOWS_BUILD),1)
     LDFLAGS += -mconsole
   endif
 
-#else ifeq ($(TARGET_RPI),1)
-else ifeq (1,1)
+else ifeq ($(TARGET_RPI),1)
+  LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
+
+else ifeq ($(TARGET_S30),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 
 else ifeq ($(OSX_BUILD),1)
