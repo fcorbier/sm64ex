@@ -736,7 +736,7 @@ static void gfx_sp_pop_matrix(uint32_t count) {
 }
 
 static float gfx_adjust_x_for_aspect_ratio(float x) {
-    return x * (4.0f / 3.0f) / ((float)gfx_current_dimensions.width / (float)gfx_current_dimensions.height);
+    return x * (4.0f / 3.0f) / (480.0f / 320.0f);
 }
 
 static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *vertices) {

@@ -250,6 +250,10 @@ void *create_skybox_ortho_matrix(s8 player) {
         right = center + half_width;
     }
 
+    // Adjustments for the PocketGo S30 wide screen
+    left += 16.0f;
+    right -= 16.0f;
+
     if (mtx != NULL) {
         guOrtho(mtx, left, right, bottom, top, 0.0f, 3.0f, 1.0f);
     } else {
