@@ -104,18 +104,7 @@ const SDL_Scancode scancode_rmapping_nonextended[][2] = {
 #define IS_FULLSCREEN() ((SDL_GetWindowFlags(wnd) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
 
 static void gfx_sdl_set_fullscreen() {
-    if (configWindow.reset)
-        configWindow.fullscreen = false;
-    if (configWindow.fullscreen == IS_FULLSCREEN())
-        return;
-    if (configWindow.fullscreen) {
-        SDL_SetWindowFullscreen(wnd, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        SDL_ShowCursor(SDL_DISABLE);
-    } else {
-        SDL_SetWindowFullscreen(wnd, 0);
-        SDL_ShowCursor(SDL_ENABLE);
-        configWindow.exiting_fullscreen = true;
-    }
+    return;
 }
 
 static void gfx_sdl_reset_dimension_and_pos(void) {
@@ -132,11 +121,8 @@ static void gfx_sdl_reset_dimension_and_pos(void) {
         return;
     }
 
-    int xpos = (configWindow.x == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.x;
-    int ypos = (configWindow.y == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.y;
-
-    SDL_SetWindowSize(wnd, configWindow.h, configWindow.w);
-    SDL_SetWindowPosition(wnd, xpos, ypos);
+    SDL_SetWindowSize(wnd, 480, 640);
+    SDL_SetWindowPosition(wnd, 0, 0);
     SDL_GL_SetSwapInterval(configWindow.vsync); // in case vsync changed
 }
 
@@ -195,7 +181,8 @@ static void gfx_sdl_main_loop(void (*run_one_game_iter)(void)) {
 }
 
 static void gfx_sdl_get_dimensions(uint32_t *width, uint32_t *height) {
-    SDL_GetWindowSize(wnd, height, width);
+    *width = 640;
+    *height = 480;
 }
 
 static int translate_scancode(int scancode) {
