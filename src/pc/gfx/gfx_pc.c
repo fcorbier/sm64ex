@@ -1155,15 +1155,22 @@ static void gfx_sp_texture(uint16_t sc, uint16_t tc, uint8_t level, uint8_t tile
 }
 
 static void gfx_dp_set_scissor(uint32_t mode, uint32_t ulx, uint32_t uly, uint32_t lrx, uint32_t lry) {
-    float x = ulx / 4.0f * RATIO_X;
-    float y = (SCREEN_HEIGHT - lry / 4.0f) * RATIO_Y;
-    float width = (lrx - ulx) / 4.0f * RATIO_X;
-    float height = (lry - uly) / 4.0f * RATIO_Y;
-    
-    rdp.scissor.x = x;
-    rdp.scissor.y = y;
-    rdp.scissor.width = width;
-    rdp.scissor.height = height;
+    // On PocketGo S30:
+    // Max width: 480
+    // Max height: 320
+    float ratio_x = 480.0f / 320.0f;
+    float ratio_y = 320.0f / 240.0f;
+
+    float x = ulx / 4.0f * ratio_x;
+    float y = uly / 4.0f * ratio_y;
+    float width = (lrx - ulx) / 4.0f * ratio_x;
+    float height = (lry - uly) / 4.0f * ratio_y;
+
+    // Adjust scissor values for rotated display
+    rdp.scissor.x = y;
+    rdp.scissor.y = x;
+    rdp.scissor.width = height;
+    rdp.scissor.height = width;
     
     rdp.viewport_or_scissor_changed = true;
 }
@@ -1357,7 +1364,7 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
     
     ulxf = gfx_adjust_x_for_aspect_ratio(ulxf);
     lrxf = gfx_adjust_x_for_aspect_ratio(lrxf);
-   
+
     // Update Y coordinate for the PocketGo S30 screen resolution 
     ulyf /= 2.0f;
     ulyf += 0.5f;
