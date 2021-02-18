@@ -58,9 +58,9 @@ const SDL_Scancode windows_scancode_table[] = {
   SDL_SCANCODE_7,              SDL_SCANCODE_8,              SDL_SCANCODE_9,           SDL_SCANCODE_0,              SDL_SCANCODE_MINUS,   SDL_SCANCODE_EQUALS,         SDL_SCANCODE_BACKSPACE,      SDL_SCANCODE_TAB,        /* 0 */
 
   SDL_SCANCODE_Q,              SDL_SCANCODE_W,              SDL_SCANCODE_E,           SDL_SCANCODE_R,              SDL_SCANCODE_T,       SDL_SCANCODE_Y,              SDL_SCANCODE_U,              SDL_SCANCODE_I,          /* 1 */
-  SDL_SCANCODE_O,              SDL_SCANCODE_P,              SDL_SCANCODE_LEFTBRACKET, SDL_SCANCODE_RIGHTBRACKET,   SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_LCTRL,          SDL_SCANCODE_A,              SDL_SCANCODE_S,          /* 1 */
+  SDL_SCANCODE_O,              SDL_SCANCODE_P,              SDL_SCANCODE_LEFTBRACKET, SDL_SCANCODE_RIGHTBRACKET,   SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_UNKNOWN,        SDL_SCANCODE_UNKNOWN,        SDL_SCANCODE_S,          /* 1 */
 
-  SDL_SCANCODE_D,              SDL_SCANCODE_F,              SDL_SCANCODE_G,           SDL_SCANCODE_H,              SDL_SCANCODE_J,       SDL_SCANCODE_KP_RIGHTPAREN,  SDL_SCANCODE_LCTRL,          SDL_SCANCODE_SEMICOLON,  /* 2 */
+  SDL_SCANCODE_D,              SDL_SCANCODE_F,              SDL_SCANCODE_G,           SDL_SCANCODE_H,              SDL_SCANCODE_J,       SDL_SCANCODE_KP_RIGHTPAREN,  SDL_SCANCODE_UNKNOWN,        SDL_SCANCODE_SEMICOLON,  /* 2 */
   SDL_SCANCODE_APOSTROPHE,     SDL_SCANCODE_GRAVE,          SDL_SCANCODE_LSHIFT,      SDL_SCANCODE_BACKSLASH,      SDL_SCANCODE_Z,       SDL_SCANCODE_X,              SDL_SCANCODE_C,              SDL_SCANCODE_V,          /* 2 */
 
   SDL_SCANCODE_UNKNOWN,        SDL_SCANCODE_N,              SDL_SCANCODE_M,           SDL_SCANCODE_LALT,           SDL_SCANCODE_KP_LEFTBRACE,  SDL_SCANCODE_SLASH,    SDL_SCANCODE_KP_RIGHTBRACE,  SDL_SCANCODE_PRINTSCREEN,/* 3 */
@@ -172,6 +172,12 @@ static void gfx_sdl_init(const char *window_title) {
     for (size_t i = 0; i < sizeof(windows_scancode_table) / sizeof(SDL_Scancode); i++) {
         inverted_scancode_table[windows_scancode_table[i]] = i;
     }
+
+    // A/B buttons
+    inverted_scancode_table[SDL_SCANCODE_LCTRL] = 0x26;
+    inverted_scancode_table[SDL_SCANCODE_RCTRL] = 0x33;
+    inverted_scancode_table[SDL_SCANCODE_LALT] = 0x26;
+    inverted_scancode_table[SDL_SCANCODE_RALT] = 0x33;
 
     // Simulate CPad
     inverted_scancode_table[SDL_SCANCODE_UP] = 0x148;
