@@ -165,6 +165,12 @@ static void gfx_sdl_init(const char *window_title) {
     inverted_scancode_table[SDL_SCANCODE_LALT] = 0x26;
     inverted_scancode_table[SDL_SCANCODE_RALT] = 0x33;
 
+    // A/B buttons for Bkacjios's build of SDL2
+    inverted_scancode_table[SDL_SCANCODE_A] = 0x26;
+    inverted_scancode_table[SDL_SCANCODE_X] = 0x33;
+    inverted_scancode_table[SDL_SCANCODE_B] = 0x26;
+    inverted_scancode_table[SDL_SCANCODE_Y] = 0x33;
+
     // Simulate CPad
     inverted_scancode_table[SDL_SCANCODE_UP] = 0x148;
     inverted_scancode_table[SDL_SCANCODE_DOWN] = 0x150;
