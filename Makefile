@@ -578,7 +578,7 @@ else ifeq ($(WINDOW_API),SDL2)
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew`
   else ifeq ($(TARGET_S30),1)
-    BACKEND_LDFLAGS += -lGLESv2 -L$(ZK_ROOT)/prebuilt/a33/lib -lSDL2 -lpthread  -ldl -lrt
+    BACKEND_LDFLAGS += -L$(ZK_ROOT)/prebuilt/a33/lib -L$(ZK_ROOT)/toolchain/a33/lib -lGLESv2 -lSDL2 -lpthread -ldl -lrt
   else
     BACKEND_LDFLAGS += -lGL
   endif
