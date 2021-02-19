@@ -41,7 +41,7 @@
 # define FRAMERATE 30
 #endif
 
-static const Uint32 FRAME_TIME = 1000 / FRAMERATE;
+static const Uint32 FRAME_TIME = 1000 / (FRAMERATE * 2);
 
 static SDL_Window *wnd;
 static SDL_GLContext ctx = NULL;

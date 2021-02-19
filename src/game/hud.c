@@ -69,6 +69,20 @@ void render_hud_tex_lut(s32 x, s32 y, u8 *texture) {
                         G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
 }
 
+static u32 sPowerMeterLastRenderTimestamp;
+static s16 sPowerMeterLastY;
+static Gfx *sPowerMeterDisplayListPos;
+
+void patch_interpolated_hud(void) {
+    if (sPowerMeterDisplayListPos != NULL) {
+        Mtx *mtx = alloc_display_list(sizeof(Mtx));
+        guTranslate(mtx, (f32) sPowerMeterHUD.x, (f32) sPowerMeterHUD.y, 0);
+        gSPMatrix(sPowerMeterDisplayListPos, VIRTUAL_TO_PHYSICAL(mtx),
+              G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+        sPowerMeterDisplayListPos = NULL;
+    }
+}
+
 /**
  * Renders a rgba16 8x8 glyph texture from a table list.
  */
@@ -110,6 +124,7 @@ void render_power_meter_health_segment(s16 numHealthWedges) {
  */
 void render_dl_power_meter(s16 numHealthWedges) {
     Mtx *mtx;
+    f32 interpolatedY;
 
     mtx = alloc_display_list(sizeof(Mtx));
 
@@ -117,7 +132,15 @@ void render_dl_power_meter(s16 numHealthWedges) {
         return;
     }
 
-    guTranslate(mtx, (f32) sPowerMeterHUD.x, (f32) sPowerMeterHUD.y, 0);
+    if (gGlobalTimer == sPowerMeterLastRenderTimestamp + 1) {
+        interpolatedY = (sPowerMeterLastY + sPowerMeterHUD.y) / 2.0f;
+    } else {
+        interpolatedY = sPowerMeterHUD.y;
+    }
+    guTranslate(mtx, (f32) sPowerMeterHUD.x, interpolatedY, 0);
+    sPowerMeterLastY = sPowerMeterHUD.y;
+    sPowerMeterLastRenderTimestamp = gGlobalTimer;
+    sPowerMeterDisplayListPos = gDisplayListHead;
 
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx++),
               G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
