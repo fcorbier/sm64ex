@@ -14,12 +14,15 @@ Controls:
 
 You can access the native port specific in-game menu with Start and R (Options)
 
-Known issues:
-- Incorrect aspect ratio
-- Graphical glitches (In-game instruction cards do not appear correctly)
-- Savefiles are not working
-
 History:
+
+v0.2 (2021/2/18)
+- Fixed graphical issues
+- Fixed aspect ratio
+- Fixed savefiles
+- A/B Buttons are now mapped to A/X and B/Y, to mirror the orignal N64 
+controller layout
+- Added 60fps interpolation mode
 
 v0.1 (2021/2/17)
 - Initial release
