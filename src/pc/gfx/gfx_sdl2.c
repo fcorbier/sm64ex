@@ -171,6 +171,9 @@ static void gfx_sdl_init(const char *window_title) {
     inverted_scancode_table[SDL_SCANCODE_B] = 0x26;
     inverted_scancode_table[SDL_SCANCODE_Y] = 0x33;
 
+    // Make L2 Z as well
+    inverted_scancode_table[SDL_SCANCODE_KP_LEFTPAREN] = 0x25;
+
     // Simulate CPad
     inverted_scancode_table[SDL_SCANCODE_UP] = 0x148;
     inverted_scancode_table[SDL_SCANCODE_DOWN] = 0x150;
